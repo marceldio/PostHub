@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from .validators import validate_password, validate_email_domain
 
 
 class CustomUser(AbstractUser):
@@ -7,6 +8,15 @@ class CustomUser(AbstractUser):
     birth_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Применяем валидатор для email
+    email = models.EmailField(validators=[validate_email_domain], unique=True)
+
+    def set_password(self, raw_password):
+        # Применяем валидатор для пароля перед сохранением
+        validate_password(raw_password)
+        super().set_password(raw_password)
+
 
     def __str__(self):
         return self.username
